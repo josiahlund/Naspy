@@ -1,3 +1,6 @@
+import warnings
+
+
 def read_bdf(path):
     valid_cards = []
     with open(path) as f:
@@ -15,8 +18,9 @@ def read_bdf(path):
                 pass
             else:
                 card_image = line[:8].strip().upper()
+                # Warn when unsupported card encountered
                 if card_image not in valid_cards:
-                    raise NotImplementedError(f'Unsupported card image: {card_image}')
+                    warnings.warn(f'Unsupported card image found: {card_image}')
 
         if not in_bulk:
             # BEGIN BULK is a required card for any valid Nastran job
