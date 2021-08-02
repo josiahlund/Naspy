@@ -27,6 +27,8 @@ def read_bdf(path):
                     warnings.warn(f'Unsupported card image found: {card_image}')
                 else:
                     field_data = read_card(line, f)
+                    card = [scl(*field_data) for scl in BulkDataEntry.__subclasses__()
+                            if scl.__name__.upper() == card_image][0]
         if not in_bulk:
             # BEGIN BULK is a required card for any valid Nastran job
             raise EOFError('No "BEGIN BULK" statement found.')
@@ -45,7 +47,7 @@ def read_card(line: str, f) -> list:
             fields_to_read = 8
             field_width = 8
 
-        card_data += [line[8 + i*field_width:8 + (i+1)*field_width] for i in range(fields_to_read)]
+        card_data += [line[8 + i*field_width:8 + (i+1)*field_width].strip() for i in range(fields_to_read)]
 
         try:
             line = f.peek()
@@ -61,4 +63,4 @@ def read_card(line: str, f) -> list:
                 break
             else:
                 line = next(f)
-    return card_data
+    return tuple(card_data)
