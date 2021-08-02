@@ -1,8 +1,9 @@
 import warnings
+from BULKDATA.BulkDataEntry import BulkDataEntry
 
 
 def read_bdf(path):
-    valid_cards = []
+    valid_cards = [scl.__name__.upper() for scl in BulkDataEntry.__subclasses__()]
     with open(path) as f:
         in_bulk = False
         for line in f:
