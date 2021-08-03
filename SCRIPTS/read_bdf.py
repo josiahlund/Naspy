@@ -5,6 +5,7 @@ from more_itertools import peekable
 
 def read_bdf(path):
     valid_cards = [scl.__name__.upper() for scl in BulkDataEntry.__subclasses__()]
+    cards_read = {}
     with open(path) as f:
         # TODO figure out if there's a cleaner way to make f peekable.
         f = peekable(f)
@@ -30,8 +31,13 @@ def read_bdf(path):
                     # TODO see if theres a way to call a subclass directly (without having to import every subclass)
                     # There's no need for this to be a list comprehension, I just want to run the subclass of
                     # BulkDataEntry with name card_image
-                    card = [scl(*field_data) for scl in BulkDataEntry.__subclasses__()
-                            if scl.__name__.upper() == card_image][0]
+                    scl, card = [(scl, scl(*field_data)) for scl in BulkDataEntry.__subclasses__()
+                                 if scl.__name__.upper() == card_image][0]
+                    try:
+                        cards_read[scl.__name__].append(card)
+                    except KeyError:
+                        cards_read[scl.__name__] = [card]
+
         if not in_bulk:
             # BEGIN BULK is a required card for any valid Nastran job
             raise EOFError('No "BEGIN BULK" statement found.')
