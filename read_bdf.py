@@ -27,6 +27,9 @@ def read_bdf(path):
                     warnings.warn(f'Unsupported card image found: {card_image}')
                 else:
                     field_data = read_card(line, f)
+                    # TODO see if theres a way to call a subclass directly (without having to import every subclass)
+                    # There's no need for this to be a list comprehension, I just want to run the subclass of
+                    # BulkDataEntry with name card_image
                     card = [scl(*field_data) for scl in BulkDataEntry.__subclasses__()
                             if scl.__name__.upper() == card_image][0]
         if not in_bulk:
