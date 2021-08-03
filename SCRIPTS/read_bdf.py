@@ -3,7 +3,7 @@ from BULKDATA.BulkDataEntry import BulkDataEntry
 from more_itertools import peekable
 
 
-def read_bdf(path):
+def read_bdf(path) -> dict:
     with open(path) as f:
         # TODO figure out if there's a cleaner way to make f peekable.
         f = peekable(f)
@@ -17,6 +17,7 @@ def read_bdf(path):
         if not in_bulk:
             # BEGIN BULK is a required card for any valid Nastran job
             raise EOFError('No "BEGIN BULK" statement found.')
+    return bulk_data_entries
 
 
 def read_card(line: str, f) -> list:
