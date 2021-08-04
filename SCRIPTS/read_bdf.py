@@ -60,6 +60,8 @@ def read_bulk_data(f) -> dict:
         if not line.strip() or line.strip().startswith("$"):
             pass
         else:
+            if line.startswith("ENDDATA"):
+                break
             card_image = line[:8].strip().upper()
             # Warn when unsupported card encountered
             if card_image not in valid_cards:
