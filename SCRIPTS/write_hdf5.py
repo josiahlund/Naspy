@@ -13,5 +13,6 @@ def write_hdf5(path: str, bulk_data_entries: dict):
         count = value[0].entry_count
         data = [(tuple(card.__dict__.values())[:count] + (1,)) for card in bulk_data_entries[key]]
         cards = np.sort(np.array(data, dtype=dtype), order="ID")
-        hdf5.create_dataset(where, data=cards, dtype=dtype)
+        table = hdf5.create_dataset(where, data=cards, dtype=dtype)
+        table.attrs.create("version", [0], dtype="int64")
     hdf5.close()
