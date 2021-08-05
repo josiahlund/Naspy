@@ -11,7 +11,7 @@ class Grid(BulkDataEntry):
         self.CD = int(CD) if CD != "" else 0
         self.PS = PS
         self.SEID = int(SEID) if SEID != "" else 0
-        self.h5_path = "/NASTRAN/INPUT/NODE"
+        self.h5_path = "/NASTRAN/INPUT/NODE/GRID"
         self.dtype = [("ID", "int"),
                       ("CP", "int"),
                       ("X1", "float"),
