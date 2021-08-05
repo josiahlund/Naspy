@@ -4,6 +4,7 @@ import numpy as np
 
 def write_hdf5(path: str, bulk_data_entries: dict):
     hdf5 = h5py.File(path, mode="w")
+    # SCHEMA is the Nastran version.
     schema_value = 1
     hdf5.attrs.create("SCHEMA", np.array([schema_value], dtype="int64"))
     for key, value in bulk_data_entries.items():
