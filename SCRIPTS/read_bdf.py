@@ -20,6 +20,36 @@ def read_bdf(path) -> dict:
     return bulk_data_entries
 
 
+def read_bulk_data(f) -> dict:
+    valid_cards = [scl.__name__.upper() for scl in BulkDataEntry.__subclasses__()]
+    cards_read = {}
+    for line in f:
+        # skip blank lines and comments
+        if not line.strip() or line.strip().startswith("$"):
+            pass
+        else:
+            if line.startswith("ENDDATA"):
+                break
+            card_image = line[:8].strip().upper()
+            # Warn when unsupported card encountered if not a continuation line
+            if card_image not in valid_cards:
+                if not card_image.startswith("*") and not card_image.startswith("+"):
+                    warnings.warn(f'Unsupported card image found: {card_image}')
+            else:
+                field_data = read_card(line, f)
+                # TODO see if theres a way to call a subclass directly (without having to import every subclass)
+                # There's no need for this to be a list comprehension, I just want to run the subclass of
+                # BulkDataEntry with name card_image
+                scl, card = [(scl, scl(*field_data)) for scl in BulkDataEntry.__subclasses__()
+                             if scl.__name__.upper() == card_image][0]
+                try:
+                    cards_read[scl.__name__].append(card)
+                except KeyError:
+                    # First card of this type. Create new entry in dictionary.
+                    cards_read[scl.__name__] = [card]
+    return cards_read
+
+
 def read_card(line: str, f) -> list:
     card_data = []
     while True:
@@ -50,33 +80,3 @@ def read_card(line: str, f) -> list:
             else:
                 line = next(f)
     return tuple(card_data)
-
-
-def read_bulk_data(f) -> dict:
-    valid_cards = [scl.__name__.upper() for scl in BulkDataEntry.__subclasses__()]
-    cards_read = {}
-    for line in f:
-        # skip blank lines and comments
-        if not line.strip() or line.strip().startswith("$"):
-            pass
-        else:
-            if line.startswith("ENDDATA"):
-                break
-            card_image = line[:8].strip().upper()
-            # Warn when unsupported card encountered if not a continuation line
-            if card_image not in valid_cards:
-                if not card_image.startswith("*") and not card_image.startswith("+"):
-                    warnings.warn(f'Unsupported card image found: {card_image}')
-            else:
-                field_data = read_card(line, f)
-                # TODO see if theres a way to call a subclass directly (without having to import every subclass)
-                # There's no need for this to be a list comprehension, I just want to run the subclass of
-                # BulkDataEntry with name card_image
-                scl, card = [(scl, scl(*field_data)) for scl in BulkDataEntry.__subclasses__()
-                             if scl.__name__.upper() == card_image][0]
-                try:
-                    cards_read[scl.__name__].append(card)
-                except KeyError:
-                    # First card of this type. Create new entry in dictionary.
-                    cards_read[scl.__name__] = [card]
-    return cards_read
