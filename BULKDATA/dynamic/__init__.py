@@ -1,0 +1,1 @@
+from BULKDATA.dynamic import EIGRL
