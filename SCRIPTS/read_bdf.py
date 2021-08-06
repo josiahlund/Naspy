@@ -63,9 +63,10 @@ def read_bulk_data(f) -> dict:
             if line.startswith("ENDDATA"):
                 break
             card_image = line[:8].strip().upper()
-            # Warn when unsupported card encountered
+            # Warn when unsupported card encountered if not a continuation line
             if card_image not in valid_cards:
-                warnings.warn(f'Unsupported card image found: {card_image}')
+                if not card_image.startswith("*") and not card_image.startswith("+"):
+                    warnings.warn(f'Unsupported card image found: {card_image}')
             else:
                 field_data = read_card(line, f)
                 # TODO see if theres a way to call a subclass directly (without having to import every subclass)
