@@ -1,9 +1,12 @@
+import h5py
+import tempfile
+import numpy as np
 import warnings
 from BULKDATA.BulkDataEntry import BulkDataEntry
 from more_itertools import peekable
 
 
-def read_bdf(path) -> dict:
+def read_bdf(path) -> object:
     with open(path) as f:
         # TODO figure out if there's a cleaner way to make f peekable.
         f = peekable(f)
@@ -14,10 +17,11 @@ def read_bdf(path) -> dict:
                 if line.strip().upper() == "BEGIN BULK":
                     in_bulk = True
                     bulk_data_entries = read_bulk_data(f)
+                    h5 = write_hdf5(bulk_data_entries)
         if not in_bulk:
             # BEGIN BULK is a required card for any valid Nastran job
             raise EOFError('No "BEGIN BULK" statement found.')
-    return bulk_data_entries
+    return h5
 
 
 def read_bulk_data(f) -> dict:
@@ -40,13 +44,14 @@ def read_bulk_data(f) -> dict:
                 # TODO see if theres a way to call a subclass directly (without having to import every subclass)
                 # There's no need for this to be a list comprehension, I just want to run the subclass of
                 # BulkDataEntry with name card_image
-                scl, card = [(scl, scl(*field_data)) for scl in BulkDataEntry.__subclasses__()
-                             if scl.__name__.upper() == card_image][0]
+                card = [scl(*field_data) for scl in BulkDataEntry.__subclasses__()
+                        if scl.__name__.upper() == card_image][0]
+                # TODO Handled by using the class instances instead of appending one by one.
                 try:
-                    cards_read[scl.__name__].append(card)
+                    cards_read[card.__class__.__name__].append(card)
                 except KeyError:
                     # First card of this type. Create new entry in dictionary.
-                    cards_read[scl.__name__] = [card]
+                    cards_read[card.__class__.__name__] = [card]
     return cards_read
 
 
@@ -80,3 +85,20 @@ def read_card(line: str, f) -> tuple:
             else:
                 line = next(f)
     return tuple(card_data)
+
+
+def write_hdf5(bulk_data_entries: dict, path=tempfile.TemporaryFile()):
+    hdf5 = h5py.File(path, mode="w")
+    # SCHEMA is the Nastran version.
+    schema_value = 1
+    hdf5.attrs.create("SCHEMA", [schema_value], dtype="int64")
+    for key, value in bulk_data_entries.items():
+        where = value[0].h5_path
+        dtype = value[0].dtype + [("DOMAIN_ID", int)]
+        count = value[0].entry_count
+        sort_by = list(value[0].__dict__.keys())[0]
+        data = [(tuple(card.__dict__.values())[:count] + (1,)) for card in bulk_data_entries[key]]
+        cards = np.sort(np.array(data, dtype=dtype), order=sort_by)
+        table = hdf5.create_dataset(where, data=cards, dtype=dtype)
+        table.attrs.create("version", [0], dtype="int64")
+    return hdf5
