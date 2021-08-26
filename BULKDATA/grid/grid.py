@@ -2,6 +2,10 @@ from BULKDATA.BulkDataEntry import BulkDataEntry
 
 
 class Grid(BulkDataEntry):
+    # Tracking instances as shown in https://stackoverflow.com/questions/12101958/how-to-keep-track-of-class-instances
+    # Use of weakref/WeakSet is another option which may be necessary as things evolve.
+    instances = []
+
     def __init__(self, ID, CP, X1, X2, X3, CD, PS, SEID):
         self.ID = int(ID)
         self.CP = int(CP) if CP != "" else 0
@@ -17,3 +21,4 @@ class Grid(BulkDataEntry):
                       ("CD", int),
                       ("PS", int),
                       ("SEID", int)]
+        Grid.instances.append(self)
