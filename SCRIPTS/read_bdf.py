@@ -26,7 +26,6 @@ def read_bdf(path) -> object:
 
 def read_bulk_data(f) -> dict:
     valid_cards = [scl.__name__.upper() for scl in BulkDataEntry.__subclasses__()]
-    cards_read = {}
     for line in f:
         # skip blank lines and comments
         if not line.strip() or line.strip().startswith("$"):
@@ -46,12 +45,7 @@ def read_bulk_data(f) -> dict:
                 # BulkDataEntry with name card_image
                 card = [scl(*field_data) for scl in BulkDataEntry.__subclasses__()
                         if scl.__name__.upper() == card_image][0]
-                # TODO Handled by using the class instances instead of appending one by one.
-                try:
-                    cards_read[card.__class__.__name__].append(card)
-                except KeyError:
-                    # First card of this type. Create new entry in dictionary.
-                    cards_read[card.__class__.__name__] = [card]
+    cards_read = {(key := scl.__name__.upper()): (value := scl.instances) for scl in BulkDataEntry.__subclasses__()}
     return cards_read
 
 
