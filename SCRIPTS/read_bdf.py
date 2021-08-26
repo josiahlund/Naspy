@@ -50,7 +50,7 @@ def read_bulk_data(f) -> dict:
     return cards_read
 
 
-def read_card(line: str, f) -> list:
+def read_card(line: str, f) -> tuple:
     card_data = []
     while True:
         # Determine card format
