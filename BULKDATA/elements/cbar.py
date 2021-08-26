@@ -2,6 +2,7 @@ from BULKDATA.BulkDataEntry import BulkDataEntry
 
 
 class Cbar(BulkDataEntry):
+    instances = []
     def __init__(self, EID, PID, GA, GB, X1, X2, X3, OFFT, *args):
         self.EID = int(EID)
         self.PID = int(PID)
@@ -46,3 +47,4 @@ class Cbar(BulkDataEntry):
                       ("W1B", float),
                       ("W2B", float),
                       ("W3B", float)]
+        Cbar.instances.append(self)

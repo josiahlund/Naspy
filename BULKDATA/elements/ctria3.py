@@ -2,6 +2,7 @@ from BULKDATA.BulkDataEntry import BulkDataEntry
 
 
 class Ctria3(BulkDataEntry):
+    instances = []
     def __init__(self, EID, PID, G1, G2, G3, THETA, ZOFFS, blank, *args):
         self.EID = int(EID)
         self.PID = int(PID)
@@ -40,3 +41,4 @@ class Ctria3(BulkDataEntry):
                       ("TFLAG", int),
                       ("T", float, 3),
                       ("MCID", int)]
+        Ctria3.instances.append(self)

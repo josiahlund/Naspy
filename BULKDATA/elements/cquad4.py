@@ -2,6 +2,7 @@ from BULKDATA.BulkDataEntry import BulkDataEntry
 
 
 class Cquad4(BulkDataEntry):
+    instances = []
     def __init__(self, EID, PID, G1, G2, G3, G4, THETA, ZOFFS, *args):
         self.EID = int(EID)
         self.PID = int(PID)
@@ -40,3 +41,4 @@ class Cquad4(BulkDataEntry):
                       ("TFLAG", int),
                       ("T", float, 4),
                       ("MCID", int)]
+        Cquad4.instances.append(self)
