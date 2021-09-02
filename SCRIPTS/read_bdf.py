@@ -2,8 +2,10 @@ import h5py
 import tempfile
 import numpy as np
 import warnings
-from BULKDATA.BulkDataEntry import BulkDataEntry
+from BulkDataEntries import BulkDataEntry
 from more_itertools import peekable
+import tkinter as tk
+from tkinter import filedialog
 
 
 def read_bdf(path) -> object:
@@ -96,3 +98,10 @@ def write_hdf5(bulk_data_entries: dict, path=tempfile.TemporaryFile()):
         table = hdf5.create_dataset(where, data=cards, dtype=dtype)
         table.attrs.create("version", [0], dtype="int64")
     return hdf5
+
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    root.withdraw()
+    file = filedialog.askopenfile()
+    read_bdf(file.name)
