@@ -27,7 +27,7 @@ def read_bdf(path) -> object:
 
 
 def read_bulk_data(f) -> dict:
-    valid_cards = [card.upper() for card in registry.keys()]
+    valid_cards = [card for card in registry.keys()]
     cards_read = {}
     for line in f:
         # skip blank lines and comments
