@@ -2,7 +2,7 @@ import h5py
 import tempfile
 import numpy as np
 import warnings
-from BulkDataEntries import BulkDataEntry
+from BulkDataEntries import registry
 from more_itertools import peekable
 import tkinter as tk
 from tkinter import filedialog
@@ -27,7 +27,8 @@ def read_bdf(path) -> object:
 
 
 def read_bulk_data(f) -> dict:
-    valid_cards = [scl.__name__.upper() for scl in BulkDataEntry.__subclasses__()]
+    valid_cards = [card.upper() for card in registry.keys()]
+    cards_read = {}
     for line in f:
         # skip blank lines and comments
         if not line.strip() or line.strip().startswith("$"):
@@ -42,12 +43,10 @@ def read_bulk_data(f) -> dict:
                     warnings.warn(f'Unsupported card image found: {card_image}')
             else:
                 field_data = read_card(line, f)
-                # TODO see if theres a way to call a subclass directly (without having to import every subclass)
-                # There's no need for this to be a list comprehension, I just want to run the subclass of
-                # BulkDataEntry with name card_image
-                card = [scl(*field_data) for scl in BulkDataEntry.__subclasses__()
-                        if scl.__name__.upper() == card_image][0]
-    cards_read = {(key := scl.__name__.upper()): (value := scl.instances) for scl in BulkDataEntry.__subclasses__()}
+                try:
+                    cards_read[card_image].append(registry[card_image](*field_data))
+                except KeyError:
+                    cards_read[card_image] = [registry[card_image](*field_data)]
     return cards_read
 
 

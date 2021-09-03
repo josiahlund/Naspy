@@ -1,15 +1,14 @@
-from abc import ABC
+registry = {}
 
 
-class BulkDataEntry(ABC):
-    pass
+def register(cls):
+    registry[cls.__name__.upper()] = cls
 
 
 # Tracking instances as shown in https://stackoverflow.com/questions/12101958/how-to-keep-track-of-class-instances
 # Use of weakref/WeakSet is another option which may be necessary as things evolve.
-class Cbar(BulkDataEntry):
-    instances = []
-
+@register
+class Cbar:
     def __init__(self, EID, PID, GA, GB, X1, X2, X3, OFFT, *args):
         self.EID = int(EID)
         self.PID = int(PID)
@@ -55,12 +54,10 @@ class Cbar(BulkDataEntry):
                       ("W1B", float),
                       ("W2B", float),
                       ("W3B", float)]
-        Cbar.instances.append(self)
 
 
-class Cquad4(BulkDataEntry):
-    instances = []
-
+@register
+class Cquad4:
     def __init__(self, EID, PID, G1, G2, G3, G4, THETA, ZOFFS, *args):
         self.EID = int(EID)
         self.PID = int(PID)
@@ -99,12 +96,10 @@ class Cquad4(BulkDataEntry):
                       ("TFLAG", int),
                       ("T", float, 4),
                       ("MCID", int)]
-        Cquad4.instances.append(self)
 
 
-class Ctria3(BulkDataEntry):
-    instances = []
-
+@register
+class Ctria3:
     def __init__(self, EID, PID, G1, G2, G3, THETA, ZOFFS, blank, *args):
         self.EID = int(EID)
         self.PID = int(PID)
@@ -143,12 +138,10 @@ class Ctria3(BulkDataEntry):
                       ("TFLAG", int),
                       ("T", float, 3),
                       ("MCID", int)]
-        Ctria3.instances.append(self)
 
 
-class Grid(BulkDataEntry):
-    instances = []
-
+@register
+class Grid:
     def __init__(self, ID, CP, X1, X2, X3, CD, PS, SEID):
         self.ID = int(ID)
         self.CP = int(CP) if CP != "" else 0
@@ -164,13 +157,11 @@ class Grid(BulkDataEntry):
                       ("CD", int),
                       ("PS", int),
                       ("SEID", int)]
-        Grid.instances.append(self)
 
 
 """
-class Eigrl(BulkDataEntry):
-    instances = []
-
+@register
+class Eigrl:
     def __init__(self, SID, V1, V2, ND, MSGLVL, MAXSET, SHFSCL, NORM, *args):
         self.SID = int(SID)
         self.V1 = float(V1) if V1 else 0.0
@@ -197,5 +188,4 @@ class Eigrl(BulkDataEntry):
                       ("FLAG1", int),
                       ("FLAG2", int),
                       ("NORM", "S8")]
-        Eigrl.instances.append(self)
 """
