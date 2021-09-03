@@ -5,8 +5,6 @@ def register(cls):
     registry[cls.__name__.upper()] = cls
 
 
-# Tracking instances as shown in https://stackoverflow.com/questions/12101958/how-to-keep-track-of-class-instances
-# Use of weakref/WeakSet is another option which may be necessary as things evolve.
 @register
 class Cbar:
     def __init__(self, EID, PID, GA, GB, X1, X2, X3, OFFT, *args):
