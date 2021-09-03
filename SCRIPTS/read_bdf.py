@@ -43,10 +43,11 @@ def read_bulk_data(f) -> dict:
                     warnings.warn(f'Unsupported card image found: {card_image}')
             else:
                 field_data = read_card(line, f)
+                card = registry[card_image](*field_data)
                 try:
-                    cards_read[card_image].append(registry[card_image](*field_data))
+                    cards_read[card_image].append(card)
                 except KeyError:
-                    cards_read[card_image] = [registry[card_image](*field_data)]
+                    cards_read[card_image] = [card]
     return cards_read
 
 
