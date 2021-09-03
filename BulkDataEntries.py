@@ -3,6 +3,7 @@ registry = {}
 
 def register(cls):
     registry[cls.__name__.upper()] = cls
+    return cls
 
 
 @register
