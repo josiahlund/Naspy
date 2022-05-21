@@ -1,6 +1,3 @@
-import h5py
-import tempfile
-import numpy as np
 import warnings
 from BulkDataEntries import registry
 from more_itertools import peekable
@@ -8,7 +5,7 @@ import tkinter as tk
 from tkinter import filedialog
 
 
-def read_bdf(path) -> object:
+def read_bdf(path: str) -> object:
     with open(path) as f:
         # TODO figure out if there's a cleaner way to make f peekable.
         f = peekable(f)
@@ -19,14 +16,14 @@ def read_bdf(path) -> object:
                 if line.strip().upper() == "BEGIN BULK":
                     in_bulk = True
                     bulk_data_entries = read_bulk_data(f)
-                    h5 = write_hdf5(bulk_data_entries)
+                    break
         if not in_bulk:
             # BEGIN BULK is a required card for any valid Nastran job
             raise EOFError('No "BEGIN BULK" statement found.')
-    return h5
+    return bulk_data_entries
 
 
-def read_bulk_data(f) -> dict:
+def read_bulk_data(f: object) -> dict:
     valid_cards = [card for card in registry.keys()]
     cards_read = {}
     for line in f:
@@ -72,32 +69,15 @@ def read_card(line: str, f) -> tuple:
             # EOF
             break
         else:
-            # Check if line is empty or a comment, break
+            # If line is empty or a comment, break
             if not line.strip() or line.strip().startswith("$"):
                 break
-            # Check if line could be continuation of current card
+            # If line is not a continuation, break
             elif not any(line[:8].startswith(c) for c in ["+", "*", " "]):
                 break
             else:
                 line = next(f)
     return tuple(card_data)
-
-
-def write_hdf5(bulk_data_entries: dict, path=tempfile.TemporaryFile()):
-    hdf5 = h5py.File(path, mode="w")
-    # SCHEMA is the Nastran version.
-    schema_value = 1
-    hdf5.attrs.create("SCHEMA", [schema_value], dtype="int64")
-    for key, value in bulk_data_entries.items():
-        where = value[0].h5_path
-        dtype = value[0].dtype + [("DOMAIN_ID", int)]
-        count = value[0].entry_count
-        sort_by = list(value[0].__dict__.keys())[0]
-        data = [(tuple(card.__dict__.values())[:count] + (1,)) for card in bulk_data_entries[key]]
-        cards = np.sort(np.array(data, dtype=dtype), order=sort_by)
-        table = hdf5.create_dataset(where, data=cards, dtype=dtype)
-        table.attrs.create("version", [0], dtype="int64")
-    return hdf5
 
 
 if __name__ == "__main__":
