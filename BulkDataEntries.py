@@ -157,6 +157,9 @@ class Grid:
                       ("PS", int),
                       ("SEID", int)]
 
+    def __repr__(self):
+        return f"Grid({self.ID, self.CP, self.X, self.CD, self.PS, self.SEID})"
+
 
 """
 @register
