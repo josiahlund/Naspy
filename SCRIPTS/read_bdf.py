@@ -25,7 +25,7 @@ def read_bdf(path: str) -> object:
 
 def read_bulk_data(f: object) -> dict:
     valid_cards = registry.keys()
-    cards_read = {}
+    bulk_data = {card: {} for card in valid_cards}
     for line in f:
         # skip blank lines and comments
         if not line.strip() or line.strip().startswith("$"):
@@ -41,11 +41,13 @@ def read_bulk_data(f: object) -> dict:
             else:
                 field_data = read_card(line, f)
                 card = registry[card_image](*field_data)
-                try:
-                    cards_read[card_image].append(card)
-                except KeyError:
-                    cards_read[card_image] = [card]
-    return cards_read
+                if (ID := int(field_data[0])) in bulk_data[card_image]:
+                    warnings.warn(f'Duplicate {card_image} entry with ID {ID}')
+                    print(bulk_data[card_image][ID])
+                    print(card)
+                else:
+                    bulk_data[card_image][ID] = card
+    return bulk_data
 
 
 def read_card(line: str, f) -> tuple:
