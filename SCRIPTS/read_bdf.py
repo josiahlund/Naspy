@@ -24,7 +24,7 @@ def read_bdf(path: str) -> object:
 
 
 def read_bulk_data(f: object) -> dict:
-    valid_cards = [card for card in registry.keys()]
+    valid_cards = registry.keys()
     cards_read = {}
     for line in f:
         # skip blank lines and comments
@@ -76,7 +76,7 @@ def read_card(line: str, f) -> tuple:
             elif not any(line[:8].startswith(c) for c in ["+", "*", " "]):
                 break
             else:
-                line = next(f)
+                next(f)
     return tuple(card_data)
 
 
