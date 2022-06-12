@@ -6,6 +6,17 @@ def register(cls):
     return cls
 
 
+def repr_fun(self):
+    desired_attributes = {key: value for key, value in self.__dict__.items() if key in list(zip(*self.dtype))[0]}
+    return f"{self.__class__.__name__}({desired_attributes})"
+
+
+def make_repr(cls):
+    cls.__repr__ = repr_fun
+    return cls
+
+
+@make_repr
 @register
 class Cbar:
     def __init__(self, EID, PID, GA, GB, X1, X2, X3, OFFT, *args):
@@ -55,6 +66,7 @@ class Cbar:
                       ("W3B", float)]
 
 
+@make_repr
 @register
 class Cquad4:
     def __init__(self, EID, PID, G1, G2, G3, G4, THETA, ZOFFS, *args):
@@ -97,6 +109,7 @@ class Cquad4:
                       ("MCID", int)]
 
 
+@make_repr
 @register
 class Ctria3:
     def __init__(self, EID, PID, G1, G2, G3, THETA, ZOFFS, blank, *args):
@@ -139,6 +152,7 @@ class Ctria3:
                       ("MCID", int)]
 
 
+@make_repr
 @register
 class Grid:
     def __init__(self, ID, CP, X1, X2, X3, CD, PS, SEID):
@@ -157,37 +171,32 @@ class Grid:
                       ("PS", int),
                       ("SEID", int)]
 
-    def __repr__(self):
-        return f"Grid({self.ID, self.CP, self.X, self.CD, self.PS, self.SEID})"
 
-
-"""
-@register
-class Eigrl:
-    def __init__(self, SID, V1, V2, ND, MSGLVL, MAXSET, SHFSCL, NORM, *args):
-        self.SID = int(SID)
-        self.V1 = float(V1) if V1 else 0.0
-        self.V2 = float(V2) if V2 else 0.0
-        try:
-            self.ND = int(ND)
-        except ValueError:
-            self.ND = 0
-        self.MSGLVL = int(MSGLVL) if MSGLVL else 0
-        self.MAXSET = int(MAXSET) if MAXSET else 0
-        self.SHFCSL = float(SHFSCL) if SHFSCL else 0.0
-        self.FLAG1 = 0
-        self.FLAG2 = 0
-        self.NORM = NORM if NORM else "MASS"
-        self.entry_count = 10
-        self.h5_path = "/NASTRAN/INPUT/DYNAMIC/EIGRL/IDENTITY"
-        self.dtype = [("SID", int),
-                      ("V1", float),
-                      ("V2", float),
-                      ("ND", int),
-                      ("MSGLVL", int),
-                      ("MAXSET", int),
-                      ("SHFCSL", float),
-                      ("FLAG1", int),
-                      ("FLAG2", int),
-                      ("NORM", "S8")]
-"""
+# @register
+# class Eigrl:
+#     def __init__(self, SID, V1, V2, ND, MSGLVL, MAXSET, SHFSCL, NORM, *args):
+#         self.SID = int(SID)
+#         self.V1 = float(V1) if V1 else 0.0
+#         self.V2 = float(V2) if V2 else 0.0
+#         try:
+#             self.ND = int(ND)
+#         except ValueError:
+#             self.ND = 0
+#         self.MSGLVL = int(MSGLVL) if MSGLVL else 0
+#         self.MAXSET = int(MAXSET) if MAXSET else 0
+#         self.SHFCSL = float(SHFSCL) if SHFSCL else 0.0
+#         self.FLAG1 = 0
+#         self.FLAG2 = 0
+#         self.NORM = NORM if NORM else "MASS"
+#         self.entry_count = 10
+#         self.h5_path = "/NASTRAN/INPUT/DYNAMIC/EIGRL/IDENTITY"
+#         self.dtype = [("SID", int),
+#                       ("V1", float),
+#                       ("V2", float),
+#                       ("ND", int),
+#                       ("MSGLVL", int),
+#                       ("MAXSET", int),
+#                       ("SHFCSL", float),
+#                       ("FLAG1", int),
+#                       ("FLAG2", int),
+#                       ("NORM", "S8")]
