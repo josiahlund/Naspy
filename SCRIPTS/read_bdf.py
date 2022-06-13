@@ -6,17 +6,24 @@ from tkinter import filedialog
 
 def read_bdf(path: str) -> object:
     with open(path) as f:
-        in_bulk = False
+        # If there is a "BEGIN BULK" statement anywhere within the file being read, assume the file also contains pre-
+        # bulk entries (Nastran statments, executive control, file management statements, case control statements) which
+        # are not yet supported and are skipped.
+        if "BEGIN BULK" in f.read():
+            in_bulk = False
+        else:
+            in_bulk = True
+
+        # Rewind to beginning of file and begin reading line by line
+        f.seek(0)
         for line in f:
-            if not in_bulk:
+            while not in_bulk:
                 # Until case control cards are supported, skip all lines until BEGIN BULK statement has been read.
                 if line.strip().upper() == "BEGIN BULK":
                     in_bulk = True
-                    bulk_data_entries = read_bulk_data(f)
-                    break
-        if not in_bulk:
-            # BEGIN BULK is a required card for any valid Nastran job
-            raise EOFError('No "BEGIN BULK" statement found.')
+                line = next(f)
+            bulk_data_entries = read_bulk_data(f)
+            break
     return bulk_data_entries
 
 
