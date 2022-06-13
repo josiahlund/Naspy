@@ -1,14 +1,11 @@
 import warnings
 from BulkDataEntries import registry
-from more_itertools import peekable
 import tkinter as tk
 from tkinter import filedialog
 
 
 def read_bdf(path: str) -> object:
     with open(path) as f:
-        # TODO figure out if there's a cleaner way to make f peekable.
-        f = peekable(f)
         in_bulk = False
         for line in f:
             if not in_bulk:
@@ -75,7 +72,7 @@ def read_card(line: str, f) -> tuple:
         card_data += [line[8 + i*field_width:8 + (i+1)*field_width].strip() for i in range(fields_to_read)]
 
         try:
-            line = f.peek()
+            line = next(f)
         except StopIteration:
             # EOF
             break
@@ -86,8 +83,6 @@ def read_card(line: str, f) -> tuple:
             # If line is not a continuation, break
             elif not any(line[:8].startswith(c) for c in ["+", "*", " "]):
                 break
-            else:
-                next(f)
     return tuple(card_data)
 
 
