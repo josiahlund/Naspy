@@ -1,3 +1,4 @@
+import os
 import warnings
 from BulkDataEntries import registry
 import tkinter as tk
@@ -5,10 +6,19 @@ from tkinter import filedialog
 
 
 def read_bdf(path: str) -> object:
+    # TODO I'd like to make bulk_data a global variable - per pragmatic programmer tip 48, it should instead be wrapped
+    #  in an API
     valid_cards = registry.keys()
     bulk_data = {card: {} for card in valid_cards}
 
-    with open(path) as f:
+    if not os.path.isfile(path):
+        raise UserWarning(f"ERROR: File not found at {path}")
+    cwd = os.getcwd()
+    folder, file = os.path.split(path)
+    if folder:
+        os.chdir(folder)
+
+    with open(file) as f:
         # If there is a "BEGIN BULK" statement anywhere within the file being read, assume the file also contains pre-
         # bulk entries (Nastran statments, executive control, file management statements, case control statements) which
         # are not yet supported and are skipped.
@@ -28,6 +38,13 @@ def read_bdf(path: str) -> object:
             # skip blank lines and comments
             if not line.strip() or line.strip().startswith("$"):
                 pass
+            elif "INCLUDE" in line.upper():
+                include_path = line.split()[1].replace("'", "")
+                # The following should work, but only in Python 3.9.0 or greater
+                # bulk_data = bulk_data | read_bdf(f'{os.path.dirname(path)}/{include_path}')
+                if not os.path.isfile(include_path):
+                    include_path = os.path.join(cwd, include_path)
+                bulk_data = {**bulk_data, **read_bdf(include_path)}
             else:
                 if line.startswith("ENDDATA"):
                     break
@@ -55,6 +72,7 @@ def read_bdf(path: str) -> object:
                             pass
                     else:
                         bulk_data[card_image][ID] = card
+        os.chdir(cwd)
     return bulk_data
 
 
