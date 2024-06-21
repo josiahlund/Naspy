@@ -5,7 +5,7 @@ import tkinter as tk
 from tkinter import filedialog
 
 
-def read_bdf(path: str) -> object:
+def read_bdf(path: str) -> dict:
     # TODO I'd like to make bulk_data a global variable - per pragmatic programmer tip 48, it should instead be wrapped
     #  in an API
     valid_cards = registry.keys()
