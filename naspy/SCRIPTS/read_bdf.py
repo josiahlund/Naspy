@@ -1,10 +1,14 @@
 import os
 import warnings
-from BulkDataEntries import registry
+
+from line_profiler import profile
+
+from naspy.BulkDataEntries import registry
 import tkinter as tk
 from tkinter import filedialog
 
 
+@profile
 def read_bdf(path: str) -> dict:
     # TODO I'd like to make bulk_data a global variable - per pragmatic programmer tip 48, it should instead be wrapped
     #  in an API
@@ -76,6 +80,7 @@ def read_bdf(path: str) -> dict:
     return bulk_data
 
 
+@profile
 def read_card(line: str, f) -> tuple:
     card_data = []
     while True:

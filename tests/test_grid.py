@@ -1,5 +1,5 @@
 import unittest
-from naspy.BulkDataEntries import Grid
+from naspy.cards import Grid
 
 
 class TestGridDependencies(unittest.TestCase):
@@ -18,6 +18,3 @@ class TestGridDependencies(unittest.TestCase):
         # check that s.split fails when the separator is not a string
         with self.assertRaises(TypeError):
             s.split(2)
-
-if __name__ == '__main__':
-    unittest.main()
